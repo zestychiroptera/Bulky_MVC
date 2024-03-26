@@ -7,17 +7,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace BulkyWeb.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class ProductController : Controller
+    public class CategoryController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        public ProductController(IUnitOfWork unitOfWork)
+        public CategoryController(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
         public IActionResult Index()
         {
-            List<Product> objProductList = _unitOfWork.Product.GetAll().ToList();
-            return View(objProductList);
+            List<Category> objCategoryList = _unitOfWork.Category.GetAll().ToList();
+            return View(objCategoryList);
         }
 
         public IActionResult Create()
@@ -25,13 +25,17 @@ namespace BulkyWeb.Areas.Admin.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult Create(Product obj)
+        public IActionResult Create(Category obj)
         {
+            if (obj.Name == obj.DisplayOrder.ToString())
+            {
+                ModelState.AddModelError("name", "The DisplayOrder cannot exactly match the name");
+            }
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Add(obj);
+                _unitOfWork.Category.Add(obj);
                 _unitOfWork.Save();
-                TempData["success"] = "Product created successfully";
+                TempData["success"] = "Category created successfully";
                 return RedirectToAction("Index");
             }
             return View();
@@ -44,24 +48,24 @@ namespace BulkyWeb.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
-            //Product? productFromDb1 = _db.Categories.FirstOrDefault(u=> u.Id == id);
-            //Product? productFromDb2 = _db.Categories.Where(u=> u.Id == id).FirstOrDefault();
+            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
+            //Category? categoryFromDb1 = _db.Categories.FirstOrDefault(u=> u.Id == id);
+            //Category? categoryFromDb2 = _db.Categories.Where(u=> u.Id == id).FirstOrDefault();
 
-            if (productFromDb == null)
+            if (categoryFromDb == null)
             {
                 return NotFound();
             }
-            return View(productFromDb);
+            return View(categoryFromDb);
         }
         [HttpPost]
-        public IActionResult Edit(Product obj)
+        public IActionResult Edit(Category obj)
         {
             if (ModelState.IsValid)
             {
-                _unitOfWork.Product.Update(obj);
+                _unitOfWork.Category.Update(obj);
                 _unitOfWork.Save();
-                TempData["success"] = "Product edited successfully";
+                TempData["success"] = "Category edited successfully";
 
                 return RedirectToAction("Index");
             }
@@ -74,25 +78,25 @@ namespace BulkyWeb.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            Product? productFromDb = _unitOfWork.Product.Get(u => u.Id == id);
+            Category? categoryFromDb = _unitOfWork.Category.Get(u => u.Id == id);
 
-            if (productFromDb == null)
+            if (categoryFromDb == null)
             {
                 return NotFound();
             }
-            return View(productFromDb);
+            return View(categoryFromDb);
         }
         [HttpPost, ActionName("Delete")]
         public IActionResult DeletePOST(int? id)
         {
-            Product? obj = _unitOfWork.Product.Get(u => u.Id == id);
+            Category? obj = _unitOfWork.Category.Get(u => u.Id == id);
             if (obj == null)
             {
                 return NotFound();
             }
-            _unitOfWork.Product.Remove(obj);
+            _unitOfWork.Category.Remove(obj);
             _unitOfWork.Save();
-            TempData["success"] = "Product deleted successfully";
+            TempData["success"] = "Category deleted successfully";
             return RedirectToAction("Index");
         }
 
